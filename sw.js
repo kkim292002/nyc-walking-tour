@@ -1,14 +1,14 @@
-const CACHE_NAME = "nyc-walking-tour-v2.0.2";
+const CACHE_NAME = "nyc-walking-tour-v2.1.0";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./offline.html",
-  "./styles.css?v=4",
-  "./app.js?v=4",
-  "./data/tours.js?v=4",
-  "./manifest.webmanifest?v=4",
-  "./vendor/leaflet/leaflet.css?v=4",
-  "./vendor/leaflet/leaflet.js?v=4",
+  "./styles.css?v=5",
+  "./app.js?v=5",
+  "./data/tours.js?v=5",
+  "./manifest.webmanifest?v=5",
+  "./vendor/leaflet/leaflet.css?v=5",
+  "./vendor/leaflet/leaflet.js?v=5",
   "./vendor/leaflet/LICENSE",
   "./assets/icon.svg",
   "./assets/icon-maskable.svg",

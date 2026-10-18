@@ -61,6 +61,10 @@
     return `${(meters / 1000).toFixed(meters < 10000 ? 1 : 0)}km`;
   };
 
+  const markerFor = (stop) => stop.marker || String(stop.number || "•");
+  const categoryFor = (stop) => stop.category || stop.area || "흥미로운 장소";
+  const talkingPointFor = (stop) => stop.talkingPoint || stop.summary || "이 장소의 자세한 이야기를 가이드에서 확인해 보세요.";
+
   const radiusLabel = () => radiusMeters === 2000 ? "2km" : `${radiusMeters}m`;
 
   const stopsWithDistance = () => activeTour.stops
@@ -83,7 +87,7 @@
     const visited = Boolean(state.visited[stop.id]);
     return L.divIcon({
       className: "leaflet-div-icon",
-      html: `<div class="map-marker ${isNearby ? "is-nearby" : ""} ${visited ? "is-visited" : ""}"><span>${escapeHtml(stop.marker)}</span></div>`,
+      html: `<div class="map-marker ${isNearby ? "is-nearby" : ""} ${visited ? "is-visited" : ""}"><span>${escapeHtml(markerFor(stop))}</span></div>`,
       iconSize: [40, 40],
       iconAnchor: [20, 38],
       popupAnchor: [0, -35]
@@ -106,9 +110,10 @@
 
   activeTour.stops.forEach((stop) => {
     const marker = L.marker([stop.lat, stop.lng], { icon: makeMarkerIcon(stop), title: stop.nameKo })
-      .addTo(map)
-      .bindPopup(`<strong>${escapeHtml(stop.nameKo)}</strong><span>${escapeHtml(stop.talkingPoint)}</span>`);
-    marker.on("click", () => scrollNearbyCard(stop.id));
+      .addTo(map);
+    marker.on("click", () => {
+      window.location.hash = `guide/${stop.id}`;
+    });
     markerMap.set(stop.id, marker);
   });
   map.fitBounds(L.latLngBounds(activeTour.stops.map((stop) => [stop.lat, stop.lng])), { padding: [35, 35] });
@@ -125,7 +130,6 @@
     const stop = activeTour.stops.find((item) => item.id === stopId);
     if (!stop) return;
     map.flyTo([stop.lat, stop.lng], 17, { duration: .7 });
-    markerMap.get(stopId)?.openPopup();
     setTimeout(() => scrollNearbyCard(stopId), 250);
   };
 
@@ -142,12 +146,13 @@
       ? (fallback ? "가장 가까운 1곳" : `${shown.length}곳`)
       : `${all.length}곳`;
     document.querySelector("#nearbyCards").innerHTML = shown.map((stop) => `
-      <article class="nearby-card ${fallback ? "is-outside" : ""}" data-nearby-id="${stop.id}" tabindex="0" role="button" aria-label="${escapeHtml(stop.nameKo)} 지도에서 보기">
-        <span class="point-symbol" aria-hidden="true">${escapeHtml(stop.marker)}</span>
+      <article class="nearby-card ${fallback ? "is-outside" : ""}" data-nearby-id="${stop.id}" tabindex="0" role="button" aria-label="${escapeHtml(stop.nameKo)} 상세 설명 보기">
+        <span class="point-symbol" aria-hidden="true">${escapeHtml(markerFor(stop))}</span>
         <div>
-          <div class="nearby-meta"><span>${escapeHtml(stop.category)}</span>${stop.distance != null ? `<span>· ${formatDistance(stop.distance)}</span>` : ""}</div>
+          <div class="nearby-meta"><span>${escapeHtml(categoryFor(stop))}</span>${stop.distance != null ? `<span>· ${formatDistance(stop.distance)}</span>` : ""}</div>
           <h3>${escapeHtml(stop.nameKo)}</h3>
-          <p>${escapeHtml(stop.talkingPoint)}</p>
+          <p>${escapeHtml(talkingPointFor(stop))}</p>
+          <span class="nearby-detail-link">상세 설명 보기 →</span>
         </div>
       </article>
     `).join("");
@@ -162,15 +167,16 @@
       return `
         <article class="point-card ${visited ? "is-visited" : ""}" id="point-${stop.id}">
           <div class="point-card-head">
-            <span class="point-symbol" aria-hidden="true">${escapeHtml(stop.marker)}</span>
+            <span class="point-symbol" aria-hidden="true">${escapeHtml(markerFor(stop))}</span>
             <div>
-              <div class="nearby-meta">${escapeHtml(stop.category)}</div>
+              <div class="nearby-meta">${escapeHtml(categoryFor(stop))}</div>
               <h2>${escapeHtml(stop.nameKo)}<small>${escapeHtml(stop.nameEn)}</small></h2>
             </div>
             <span class="point-distance">${stop.distance != null ? formatDistance(stop.distance) : ""}</span>
           </div>
-          <p class="talking-point"><strong>일행에게 들려줄 한 문장</strong>${escapeHtml(stop.talkingPoint)}</p>
+          <p class="talking-point"><strong>일행에게 들려줄 한 문장</strong>${escapeHtml(talkingPointFor(stop))}</p>
           <div class="point-actions">
+            <button class="detail-button" type="button" data-guide-stop="${stop.id}">상세 가이드</button>
             <button type="button" data-map-stop="${stop.id}">지도에서 보기</button>
             <button type="button" data-share-stop="${stop.id}">일행에게 공유</button>
             <button class="visit-button" type="button" data-visit="${stop.id}" aria-pressed="${visited}">${visited ? "방문 완료 ✓" : "방문 완료"}</button>
@@ -194,7 +200,7 @@
 
   const renderGuide = () => {
     document.querySelector("#guideToc").innerHTML = activeTour.stops
-      .map((stop) => `<a href="#guide/${stop.id}">${escapeHtml(stop.marker)} · ${escapeHtml(stop.nameKo)}</a>`)
+      .map((stop) => `<a href="#guide/${stop.id}">${escapeHtml(markerFor(stop))} · ${escapeHtml(stop.nameKo)}</a>`)
       .join("");
     document.querySelector("#guideArticle").innerHTML = `
       <section class="guide-chapter" id="guide-intro">
@@ -206,9 +212,9 @@
       </section>
       ${activeTour.stops.map((stop) => `
         <section class="guide-chapter" id="guide-${stop.id}">
-          <span class="guide-chapter-number">${escapeHtml(stop.category)} · POINT ${escapeHtml(stop.marker)}</span>
+          <span class="guide-chapter-number">${escapeHtml(categoryFor(stop))} · POINT ${escapeHtml(markerFor(stop))}</span>
           <h2>${escapeHtml(stop.guideTitle)}</h2>
-          <div class="look-card"><strong>일행에게 먼저 들려줄 한 문장</strong><p>${escapeHtml(stop.talkingPoint)}</p></div>
+          <div class="look-card"><strong>일행에게 먼저 들려줄 한 문장</strong><p>${escapeHtml(talkingPointFor(stop))}</p></div>
           ${stop.guideHtml}
           <div class="chapter-actions">
             <button class="chapter-action" type="button" data-map-stop="${stop.id}">지도에서 보기</button>
@@ -222,7 +228,7 @@
   const shareStop = async (stopId) => {
     const stop = activeTour.stops.find((item) => item.id === stopId);
     if (!stop) return;
-    const text = `${stop.nameKo} — ${stop.talkingPoint}`;
+    const text = `${stop.nameKo} — ${talkingPointFor(stop)}`;
     const url = googleMapsUrl(stop);
     try {
       if (navigator.share) {
@@ -368,21 +374,24 @@
 
     document.querySelector("#nearbyCards").addEventListener("click", (event) => {
       const card = event.target.closest("[data-nearby-id]");
-      if (card) focusStop(card.dataset.nearbyId);
+      if (card) window.location.hash = `guide/${card.dataset.nearbyId}`;
     });
     document.querySelector("#nearbyCards").addEventListener("keydown", (event) => {
       const card = event.target.closest("[data-nearby-id]");
       if (card && ["Enter", " "].includes(event.key)) {
         event.preventDefault();
-        focusStop(card.dataset.nearbyId);
+        window.location.hash = `guide/${card.dataset.nearbyId}`;
       }
     });
 
     const handleActions = (event) => {
       const mapButton = event.target.closest("[data-map-stop]");
+      const guideButton = event.target.closest("[data-guide-stop]");
       const shareButton = event.target.closest("[data-share-stop]");
       const visitButton = event.target.closest("[data-visit]");
-      if (mapButton) {
+      if (guideButton) {
+        window.location.hash = `guide/${guideButton.dataset.guideStop}`;
+      } else if (mapButton) {
         window.location.hash = `map/${mapButton.dataset.mapStop}`;
       } else if (shareButton) {
         shareStop(shareButton.dataset.shareStop);
@@ -418,7 +427,7 @@
   const registerServiceWorker = () => {
     if (!("serviceWorker" in navigator)) return;
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js?v=4").catch(() => showToast("오프라인 저장 준비에 실패했습니다."));
+      navigator.serviceWorker.register("./sw.js?v=5").catch(() => showToast("오프라인 저장 준비에 실패했습니다."));
     });
   };
 
