@@ -15,6 +15,8 @@
   let userMarker = null;
   let accuracyCircle = null;
   const markerMap = new Map();
+  const pointDialog = document.querySelector("#pointDialog");
+  const pointPreview = document.querySelector("#pointPreview");
 
   const loadState = () => {
     try {
@@ -112,7 +114,7 @@
     const marker = L.marker([stop.lat, stop.lng], { icon: makeMarkerIcon(stop), title: stop.nameKo })
       .addTo(map);
     marker.on("click", () => {
-      window.location.hash = `guide/${stop.id}`;
+      window.location.hash = `point/${stop.id}`;
     });
     markerMap.set(stop.id, marker);
   });
@@ -196,6 +198,49 @@
         </article>
       `;
     }).join("");
+  };
+
+  const renderPointPreview = (stopId) => {
+    const stop = activeTour.stops.find((item) => item.id === stopId);
+    if (!stop) return false;
+    const checks = state.checks[stop.id] || {};
+    const visited = Boolean(state.visited[stop.id]);
+    pointDialog.dataset.stopId = stop.id;
+    pointPreview.innerHTML = `
+      <div class="point-preview-head">
+        <span class="point-symbol" aria-hidden="true">${escapeHtml(markerFor(stop))}</span>
+        <div>
+          <p class="eyebrow">${escapeHtml(categoryFor(stop))}</p>
+          <h2 id="pointPreviewTitle">${escapeHtml(stop.nameKo)}</h2>
+          <span>${escapeHtml(stop.nameEn)}</span>
+        </div>
+      </div>
+      <p class="point-preview-summary">${escapeHtml(stop.summary || talkingPointFor(stop))}</p>
+      <div class="point-preview-quote">
+        <strong>일행에게 들려줄 한 문장</strong>
+        <p>${escapeHtml(talkingPointFor(stop))}</p>
+      </div>
+      <section class="point-preview-checks" aria-labelledby="pointChecksTitle">
+        <h3 id="pointChecksTitle">현장에서 확인할 디테일</h3>
+        <div class="checklist">
+          ${stop.checks.map((item, index) => `
+            <label class="check-item">
+              <input type="checkbox" data-check-stop="${stop.id}" data-check-index="${index}" ${checks[index] ? "checked" : ""}>
+              <span class="check-box" aria-hidden="true"></span>
+              <span>${escapeHtml(item)}</span>
+            </label>
+          `).join("")}
+        </div>
+      </section>
+      <div class="point-preview-actions">
+        <button class="preview-primary" type="button" data-guide-stop="${stop.id}">상세 가이드 보기</button>
+        <a href="${googleMapsUrl(stop)}" target="_blank" rel="noopener noreferrer">Google Maps 길찾기</a>
+        <button type="button" data-share-stop="${stop.id}">일행에게 공유</button>
+        <button class="preview-visit" type="button" data-visit="${stop.id}" aria-pressed="${visited}">${visited ? "방문 완료 ✓" : "방문 완료"}</button>
+      </div>
+    `;
+    if (!pointDialog.open) pointDialog.showModal();
+    return true;
   };
 
   const renderGuide = () => {
@@ -322,13 +367,16 @@
     renderPoints();
     renderNearby();
     updateMarkerIcons();
+    if (pointDialog.open && pointDialog.dataset.stopId === stopId) renderPointPreview(stopId);
     showToast(state.visited[stopId] ? "방문 완료로 직접 기록했습니다." : "방문 기록을 취소했습니다.");
   };
 
   const switchView = (hash) => {
     const raw = (hash || "#map").replace(/^#/, "");
     const [viewName, anchor] = raw.split("/");
-    const validView = ["map", "points", "guide"].includes(viewName) ? viewName : "map";
+    const pointLayer = viewName === "point" && Boolean(anchor);
+    const validView = pointLayer ? "map" : (["map", "points", "guide"].includes(viewName) ? viewName : "map");
+    if (!pointLayer && pointDialog.open) pointDialog.close();
     document.querySelectorAll(".view").forEach((view) => view.classList.toggle("is-active", view.dataset.view === validView));
     document.querySelectorAll("[data-nav]").forEach((item) => {
       const active = item.dataset.nav === validView;
@@ -339,7 +387,12 @@
     if (validView === "map") {
       setTimeout(() => {
         map.invalidateSize();
-        if (anchor) focusStop(anchor);
+        if (pointLayer) {
+          focusStop(anchor);
+          if (!renderPointPreview(anchor)) window.location.hash = "map";
+        } else if (anchor) {
+          focusStop(anchor);
+        }
       }, 80);
     } else if (validView === "guide" && anchor) {
       requestAnimationFrame(() => document.getElementById(`guide-${anchor}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
@@ -374,13 +427,13 @@
 
     document.querySelector("#nearbyCards").addEventListener("click", (event) => {
       const card = event.target.closest("[data-nearby-id]");
-      if (card) window.location.hash = `guide/${card.dataset.nearbyId}`;
+      if (card) window.location.hash = `point/${card.dataset.nearbyId}`;
     });
     document.querySelector("#nearbyCards").addEventListener("keydown", (event) => {
       const card = event.target.closest("[data-nearby-id]");
       if (card && ["Enter", " "].includes(event.key)) {
         event.preventDefault();
-        window.location.hash = `guide/${card.dataset.nearbyId}`;
+        window.location.hash = `point/${card.dataset.nearbyId}`;
       }
     });
 
@@ -401,6 +454,7 @@
     };
     document.querySelector("#pointsList").addEventListener("click", handleActions);
     document.querySelector("#guideArticle").addEventListener("click", handleActions);
+    pointDialog.addEventListener("click", handleActions);
 
     document.querySelector("#pointsList").addEventListener("change", (event) => {
       const input = event.target.closest("[data-check-stop]");
@@ -408,6 +462,24 @@
       state.checks[input.dataset.checkStop] ||= {};
       state.checks[input.dataset.checkStop][input.dataset.checkIndex] = input.checked;
       saveState();
+    });
+
+    pointDialog.addEventListener("change", (event) => {
+      const input = event.target.closest("[data-check-stop]");
+      if (!input) return;
+      state.checks[input.dataset.checkStop] ||= {};
+      state.checks[input.dataset.checkStop][input.dataset.checkIndex] = input.checked;
+      saveState();
+      renderPoints();
+    });
+
+    document.querySelector("#pointClose").addEventListener("click", () => { window.location.hash = "map"; });
+    pointDialog.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      window.location.hash = "map";
+    });
+    pointDialog.addEventListener("click", (event) => {
+      if (event.target === pointDialog) window.location.hash = "map";
     });
 
     const dialog = document.querySelector("#helpDialog");
@@ -427,7 +499,7 @@
   const registerServiceWorker = () => {
     if (!("serviceWorker" in navigator)) return;
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js?v=5").catch(() => showToast("오프라인 저장 준비에 실패했습니다."));
+      navigator.serviceWorker.register("./sw.js?v=6").catch(() => showToast("오프라인 저장 준비에 실패했습니다."));
     });
   };
 

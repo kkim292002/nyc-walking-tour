@@ -9,11 +9,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NYC Nearby">
   <title>NYC Walking Tour · Nearby Guide</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=5">
+  <link rel="manifest" href="./manifest.webmanifest?v=6">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css?v=5">
-  <link rel="stylesheet" href="./styles.css?v=5">
+  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css?v=6">
+  <link rel="stylesheet" href="./styles.css?v=6">
 </head>
 <body>
   <a class="skip-link" href="#main">본문으로 건너뛰기</a>
@@ -109,16 +109,23 @@
     <ol>
       <li><b>내 위치</b>를 눌러 가까운 포인트를 확인합니다.</li>
       <li>반경을 300m·800m·2km 중에서 고릅니다.</li>
-      <li>포인트를 열어 짧은 설명을 읽고 일행에게 공유합니다.</li>
+      <li>지도 마커를 누르면 짧은 설명과 현장 체크 항목이 담긴 포인트 레이어가 열립니다.</li>
+      <li>더 알고 싶을 때만 포인트 레이어의 <b>상세 가이드 보기</b>를 누릅니다.</li>
       <li>방문 기록은 GPS가 아닌 <b>직접 방문 완료</b> 버튼으로만 저장됩니다.</li>
     </ol>
     <p class="privacy-note">위치 좌표는 가까운 거리를 계산하고 지도에 표시하는 데만 쓰이며 저장되지 않습니다. 지도 배경은 OpenStreetMap에서 온라인으로 불러옵니다.</p>
   </dialog>
 
+  <dialog class="point-preview-dialog" id="pointDialog" aria-label="포인트 간략 설명">
+    <div class="dialog-handle" aria-hidden="true"></div>
+    <button class="dialog-close" id="pointClose" type="button" aria-label="포인트 설명 닫기">×</button>
+    <div id="pointPreview"></div>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="./vendor/leaflet/leaflet.js?v=5"></script>
-  <script src="./data/tours.js?v=5"></script>
-  <script src="./app.js?v=5"></script>
+  <script src="./vendor/leaflet/leaflet.js?v=6"></script>
+  <script src="./data/tours.js?v=6"></script>
+  <script src="./app.js?v=6"></script>
 </body>
 </html>
