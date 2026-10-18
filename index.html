@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#173f35">
+  <meta name="description" content="뉴욕 현장에서 쓰는 한국어 도보 투어 PWA. GPS 거리 확인, 도보 길찾기, 관찰 체크리스트와 오프라인 가이드를 제공합니다.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NYC Walk">
+  <title>NYC Walking Tour</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+  <header class="app-header">
+    <a class="brand" href="#home" aria-label="NYC Walking Tour 홈">
+      <span class="brand-mark" aria-hidden="true">NY</span>
+      <span><b>NYC</b> WALKING TOUR</span>
+    </a>
+    <button class="icon-button" id="helpButton" type="button" aria-label="앱 사용 안내">?</button>
+  </header>
+
+  <main id="main">
+    <section class="view is-active" id="homeView" data-view="home" aria-labelledby="homeTitle">
+      <div class="hero">
+        <div class="hero-topline">CENTRAL PARK · PART 01</div>
+        <h1 id="homeTitle">도시가 만든<br><em>자연</em>을 걷다</h1>
+        <p>센트럴 파크의 풍경은 우연이 아닙니다. 길, 물, 바위, 건축이 하나의 장면으로 이어지는 설계의 비밀을 현장에서 확인해 보세요.</p>
+        <div class="hero-art" aria-hidden="true">
+          <svg viewBox="0 0 420 180" role="img">
+            <path d="M-20 154C56 87 94 153 166 94S284 19 448 96" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".35"/>
+            <path d="M-20 169C61 102 102 166 177 108S298 37 448 111" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".22"/>
+            <path d="M23 144C73 113 109 121 145 105C187 86 211 50 263 46C310 43 337 70 395 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+            <g fill="currentColor">
+              <circle cx="23" cy="144" r="8"/><circle cx="95" cy="119" r="6"/><circle cx="174" cy="88" r="6"/>
+              <circle cx="246" cy="49" r="6"/><circle cx="322" cy="57" r="6"/><circle cx="395" cy="64" r="8"/>
+            </g>
+          </svg>
+          <span class="map-label map-start">DAIRY</span>
+          <span class="map-label map-end">BELVEDERE</span>
+        </div>
+        <button class="primary-button" id="startTourButton" type="button">투어 시작하기 <span aria-hidden="true">→</span></button>
+      </div>
+
+      <div class="content-shell">
+        <section class="progress-card" aria-labelledby="progressTitle">
+          <div>
+            <p class="eyebrow" id="progressTitle">나의 진행률</p>
+            <p class="progress-number"><strong id="homeProgressCount">0</strong><span>/ 6 정거장</span></p>
+          </div>
+          <div class="progress-ring" id="progressRing" role="img" aria-label="진행률 0퍼센트"><span>0%</span></div>
+        </section>
+
+        <section class="route-facts" aria-label="코스 정보">
+          <div><span class="fact-icon">↗</span><strong>약 2.4 km</strong><small>걷는 거리</small></div>
+          <div><span class="fact-icon">◷</span><strong>90–120분</strong><small>관찰 포함</small></div>
+          <div><span class="fact-icon">◎</span><strong>6곳</strong><small>현장 정거장</small></div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading">
+            <div><p class="eyebrow">현재 투어</p><h2>Central Park 01</h2></div>
+            <span class="status-pill">이용 가능</span>
+          </div>
+          <article class="tour-feature">
+            <div class="tour-feature-number">01</div>
+            <div>
+              <h3>How Central Park Was Created Entirely By Design and Not By Nature</h3>
+              <p>더 데어리에서 벨베데레 성까지, 자연처럼 보이도록 설계된 공원의 장면과 동선을 따라갑니다.</p>
+              <button class="text-button" data-go="route" type="button">코스 보기 <span aria-hidden="true">→</span></button>
+            </div>
+          </article>
+        </section>
+
+        <section class="section-block future-section">
+          <div class="section-heading">
+            <div><p class="eyebrow">확장 예정</p><h2>다음 9개 투어</h2></div>
+            <span class="count-pill">01 / 10</span>
+          </div>
+          <div class="future-list" id="futureTours"></div>
+          <p class="future-note">새 투어는 <code>data/tours.js</code>에 같은 형식으로 추가하면 자동으로 목록에 연결됩니다.</p>
+        </section>
+
+        <section class="offline-card">
+          <span class="offline-icon" aria-hidden="true">↓</span>
+          <div><strong>오프라인 준비 완료</strong><p>한 번 연 뒤에는 본문과 체크 기록을 인터넷 없이도 볼 수 있습니다. Google Maps 길찾기는 연결이 필요합니다.</p></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="view" id="routeView" data-view="route" aria-labelledby="routeTitle">
+      <div class="page-intro route-intro">
+        <p class="eyebrow light">CENTRAL PARK · PART 01</p>
+        <h1 id="routeTitle">현장 코스</h1>
+        <p>남쪽의 데어리에서 북쪽의 벨베데레 성까지. 방문 완료는 위치와 무관하게 직접 눌러 기록합니다.</p>
+        <div class="route-progress-wrap">
+          <div class="route-progress-label"><span>투어 진행</span><strong id="routeProgressText">0 / 6</strong></div>
+          <div class="progress-track"><span id="routeProgressBar"></span></div>
+        </div>
+        <button class="location-button" id="locateButton" type="button"><span aria-hidden="true">⌖</span> 내 위치로 거리 확인</button>
+        <p class="location-status" id="locationStatus" role="status">위치 정보는 이 기기 안에서 거리 계산에만 사용됩니다.</p>
+      </div>
+      <div class="content-shell route-content">
+        <div class="route-line" id="stopList"></div>
+      </div>
+    </section>
+
+    <section class="view" id="guideView" data-view="guide" aria-labelledby="guideTitle">
+      <div class="page-intro guide-intro">
+        <p class="eyebrow light">DEEP GUIDE · PART 01</p>
+        <h1 id="guideTitle">상세 가이드북</h1>
+        <p>걷다가 궁금할 때 펼쳐보는 긴 해설입니다. 각 장은 현장 관찰 포인트와 이어집니다.</p>
+      </div>
+      <div class="content-shell guide-shell">
+        <nav class="guide-toc" aria-label="가이드 목차" id="guideToc"></nav>
+        <article class="guide-article" id="guideArticle"></article>
+        <aside class="source-note">
+          <strong>원본 영상</strong>
+          <p>Architectural Digest, Michael Wyetzner의 현장 해설을 바탕으로 여행용 한국어 가이드로 재구성했습니다.</p>
+          <a href="https://www.architecturaldigest.com/video/watch/walking-tour-how-central-park-was-created-entirely-by-design-and-not-by-nature" target="_blank" rel="noopener noreferrer">원본 페이지 열기 ↗</a>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="주요 메뉴">
+    <a class="nav-item is-active" href="#home" data-nav="home" aria-current="page"><span aria-hidden="true">⌂</span><b>홈</b></a>
+    <a class="nav-item" href="#route" data-nav="route"><span aria-hidden="true">⌁</span><b>코스</b></a>
+    <a class="nav-item" href="#guide" data-nav="guide"><span aria-hidden="true">▤</span><b>가이드</b></a>
+  </nav>
+
+  <dialog class="sheet-dialog" id="helpDialog">
+    <div class="dialog-handle" aria-hidden="true"></div>
+    <button class="dialog-close" id="helpClose" type="button" aria-label="닫기">×</button>
+    <p class="eyebrow">사용 안내</p>
+    <h2>iPhone에서 가장 편하게 쓰는 법</h2>
+    <ol>
+      <li>Safari에서 배포된 HTTPS 주소를 엽니다.</li>
+      <li><b>공유</b> 버튼 → <b>홈 화면에 추가</b>를 누릅니다.</li>
+      <li>여행 전에 앱을 한 번 열어 오프라인 콘텐츠를 저장합니다.</li>
+      <li>GPS는 정거장까지의 거리를 보여줄 뿐, 방문을 자동 판정하지 않습니다.</li>
+    </ol>
+    <p class="privacy-note">방문 기록과 체크리스트는 이 브라우저의 로컬 저장소에만 남습니다.</p>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="./data/tours.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
