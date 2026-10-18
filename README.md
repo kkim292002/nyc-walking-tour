@@ -1,60 +1,62 @@
-# NYC Walking Tour
+# NYC Walking Tour · Nearby Guide
 
-뉴욕 현장에서 iPhone으로 사용하는 한국어 도보 투어 PWA입니다. 현재 **Central Park Part 1**이 완성되어 있고, 같은 데이터 구조로 9개 이상의 후속 투어를 추가할 수 있습니다.
+여행 중 현재 위치 주변의 흥미로운 포인트를 지도에서 발견하고, 일행에게 짧고 재미있게 설명하기 위한 iPhone용 한국어 PWA입니다. **정해진 투어 순서나 경로는 없습니다.**
 
-## 들어 있는 기능
+## 핵심 사용 방식
 
-- GPS로 각 정거장까지의 직선거리 확인
-- Google Maps 무료 도보 길찾기 링크 (API 키 없음)
-- 현장 관찰 체크리스트
-- 짧은 현장 요약 + 긴 한국어 가이드북
-- 수동 방문 완료 체크만 사용 (GPS 자동 완료 없음)
-- 방문 기록·체크리스트·전체 진행률을 기기 로컬 저장소에 보존
-- 앱 본문과 필수 파일 오프라인 캐싱
-- iPhone 홈 화면 설치, 안전 영역, 다크 모드 대응
-- 외부 폰트·추적 스크립트·유료 서비스 없음
+1. 지도에서 **내 위치**를 누릅니다.
+2. 300m, 800m, 2km 중 검색 반경을 고릅니다.
+3. 반경 안의 포인트가 가까운 순서로 표시됩니다.
+4. 포인트의 한 문장 설명을 일행에게 들려주거나 iPhone 공유 메뉴로 전달합니다.
+5. 더 궁금하면 상세 가이드와 현장 관찰 목록을 펼칩니다.
+
+GPS는 거리 계산과 지도 표시만 담당합니다. **방문 완료는 GPS로 자동 판정하지 않으며**, 사용자가 직접 누른 경우에만 기록됩니다.
+
+## 포함된 기능
+
+- OpenStreetMap 기반 인터랙티브 지도
+- 선택한 반경 안의 포인트 탐색 및 가까운 순 정렬
+- 사용자가 요청할 때만 시작되는 실시간 위치 추적
+- 포인트별 “일행에게 들려줄 한 문장”
+- iPhone 공유 메뉴 또는 설명·지도 링크 복사
+- Google Maps 도보 길찾기 링크
+- 현장 관찰 체크리스트와 상세 한국어 가이드
+- 방문 기록·체크리스트의 기기 내 저장
+- 콘텐츠와 앱 파일의 오프라인 캐싱
+- iPhone 홈 화면 설치와 다크 모드
+- 향후 9개 이상의 뉴욕 주제 추가를 위한 데이터 구조
+
+Leaflet 지도 엔진은 프로젝트 안에 포함되어 오프라인에서도 실행됩니다. 지도 타일은 OpenStreetMap에서 현재 화면에 필요한 것만 온라인으로 불러오며 대량 다운로드하거나 오프라인용으로 미리 저장하지 않습니다. 인터넷이 없을 때도 포인트 좌표, 설명, 가이드와 방문 기록은 사용할 수 있습니다.
 
 ## GitHub Pages로 무료 공개하기
 
-아래 단계만 사용자가 직접 하면 됩니다. 앱은 아직 인터넷에 배포된 상태가 아닙니다.
-
 1. [GitHub](https://github.com/)에 로그인합니다.
 2. 오른쪽 위 **+** → **New repository**를 누릅니다.
-3. Repository name에 `nyc-walking-tour`를 입력하고 **Public**을 선택합니다.
-4. README, .gitignore, license 자동 생성 옵션은 체크하지 않고 **Create repository**를 누릅니다.
-5. 이 프로젝트 폴더의 **내용물 전체**를 업로드합니다. 폴더 자체가 한 단계 더 들어가지 않도록 `index.html`이 저장소 최상단에 보여야 합니다.
-6. 업로드 화면 아래의 **Commit changes**를 누릅니다.
-7. 저장소의 **Settings** → 왼쪽 **Pages**로 이동합니다.
-8. **Build and deployment**의 Source를 **Deploy from a branch**로 선택합니다.
-9. Branch에서 **main**, 폴더에서 **/(root)**를 선택하고 **Save**를 누릅니다.
-10. 보통 몇 분 안에, 늦으면 약 10분 뒤 Pages 화면에 표시되는 HTTPS 주소를 엽니다. 일반적인 주소 형식은 `https://사용자이름.github.io/nyc-walking-tour/`입니다.
+3. Repository name에 nyc-walking-tour를 입력하고 **Public**을 선택합니다.
+4. **Create repository**를 누릅니다.
+5. 빈 저장소의 하늘색 **Quick setup** 상자에서 **uploading an existing file**을 누릅니다.
+6. 압축을 푼 nyc-walking-tour 폴더 안의 내용물을 모두 업로드합니다. index.html이 저장소 첫 화면에 바로 보여야 합니다.
+7. 아래의 **Commit changes**를 누릅니다.
+8. **Settings → Pages → Deploy from a branch → main → /(root) → Save**를 선택합니다.
+9. 보통 몇 분 안에, 늦으면 약 10분 뒤 **Visit site**로 HTTPS 주소를 엽니다.
 
-GitHub 무료 계정의 공개 저장소와 GitHub Pages만 사용하므로 별도 웹호스팅 요금이나 유료 API가 필요하지 않습니다.
+GitHub Free 공개 저장소와 GitHub Pages만 사용하므로 별도 웹호스팅 비용이나 지도 API 요금이 없습니다.
 
 ## iPhone에 설치하기
 
-1. iPhone의 **Safari**로 배포된 HTTPS 주소를 엽니다.
-2. 하단의 **공유** 버튼을 누릅니다.
-3. **홈 화면에 추가**를 누르고 이름을 확인한 뒤 **추가**합니다.
-4. 여행 전에 홈 화면의 앱을 한 번 열어 둡니다. 이때 가이드와 앱 파일이 오프라인용으로 저장됩니다.
-5. **내 위치로 거리 확인**을 처음 누를 때 Safari의 위치 권한을 허용합니다.
+1. Safari로 배포된 HTTPS 주소를 엽니다.
+2. **공유 → 홈 화면에 추가**를 누릅니다.
+3. 여행 전에 앱을 한 번 열어 콘텐츠가 저장되도록 합니다.
+4. 현장에서 **내 위치**를 처음 누를 때 Safari 위치 권한을 허용합니다.
 
-Google Maps 길찾기는 인터넷 연결이 필요하지만, 가이드 본문·체크리스트·방문 기록은 오프라인에서도 동작합니다. iPhone에서 브라우저 데이터나 이 웹사이트 데이터를 삭제하면 로컬 기록도 함께 지워집니다.
+iPhone에서 이 웹사이트의 브라우저 데이터를 삭제하면 로컬 방문 기록도 함께 지워집니다.
 
-## 다음 투어 추가하기
+## 다음 콘텐츠 추가
 
-콘텐츠는 [`data/tours.js`](./data/tours.js)에 모여 있습니다.
+콘텐츠는 [data/tours.js](./data/tours.js)에 모여 있습니다. 새 포인트에는 이름, 좌표, 카테고리, 지도 마커 문자, 공유용 한 문장, 체크리스트와 상세 본문을 추가합니다. 앱 파일을 바꾼 뒤에는 [sw.js](./sw.js)의 CACHE_NAME 버전을 올려 기존 설치 앱이 새 파일을 받게 합니다.
 
-- 목록에만 보일 예정 투어: `status: "planned"`
-- 실제로 열리는 투어: `status: "published"`와 `stops` 배열
-- 정거장마다 좌표, 현장 요약, 관찰 체크리스트, 상세 본문을 가집니다.
+## 오픈소스와 지도 출처
 
-새 파일을 추가하거나 캐시 대상 파일명을 바꾸면 [`sw.js`](./sw.js)의 `APP_SHELL`과 `CACHE_NAME`도 함께 갱신합니다. `CACHE_NAME` 버전을 올리면 기존 설치 앱이 새 파일을 다시 받습니다.
-
-## 로컬 확인
-
-서비스 워커와 GPS는 보안 컨텍스트에서 동작하므로 파일을 더블 클릭해 여는 대신 로컬 웹 서버 또는 배포된 HTTPS 주소에서 확인해야 합니다. 배포 전에는 프로젝트 폴더에서 정적 서버를 실행한 뒤 브라우저로 접속하면 됩니다.
-
-## 출처
-
-Part 1은 Architectural Digest의 *How Central Park Was Created Entirely By Design and Not By Nature* 현장 해설을 바탕으로, 실제 도보 여행에서 읽고 관찰하기 좋은 한국어 가이드로 재구성했습니다. 앱의 상세 가이드 아래에 원본 영상 페이지 링크가 포함되어 있습니다.
+- 지도 엔진: Leaflet 1.9.4, BSD-2-Clause. 라이선스는 [vendor/leaflet/LICENSE](./vendor/leaflet/LICENSE)에 포함되어 있습니다.
+- 지도 데이터·타일: © OpenStreetMap contributors. 앱 지도 위에 출처 링크가 항상 표시됩니다.
+- Part 1 콘텐츠: Architectural Digest의 *How Central Park Was Created Entirely By Design and Not By Nature*를 여행용 한국어 가이드로 재구성했습니다.

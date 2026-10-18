@@ -1,7 +1,7 @@
 {
-  "name": "NYC Walking Tour",
-  "short_name": "NYC Walk",
-  "description": "뉴욕 현장에서 쓰는 한국어 도보 투어 가이드",
+  "name": "NYC Walking Tour · Nearby Guide",
+  "short_name": "NYC Nearby",
+  "description": "현재 위치 주변의 뉴욕 흥미 포인트를 발견하고 설명하는 한국어 지도형 가이드",
   "lang": "ko",
   "id": "./",
   "start_url": "./",
